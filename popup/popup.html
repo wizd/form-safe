@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Form Safe</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <img src="../icons/icon32.png" alt="" width="20" height="20">
+    <h1>Form Safe</h1>
+    <a id="openVault" href="#" title="Open the vault">Vault →</a>
+  </header>
+
+  <section class="card">
+    <div class="site" id="site">—</div>
+    <button id="captureBtn" class="primary">🛡️ Save receipt of this page</button>
+    <div id="captureMsg" class="msg" hidden></div>
+    <div class="hint">Shortcut: <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd></div>
+  </section>
+
+  <section class="card">
+    <label class="row">
+      <span>
+        <strong>Automatic receipts</strong>
+        <small>Save a copy every time you submit a form</small>
+      </span>
+      <input type="checkbox" id="autoToggle" class="switch">
+    </label>
+    <label class="row" id="siteRow">
+      <span>
+        <strong>Pause on this site</strong>
+        <small id="siteHint">Skip automatic receipts here</small>
+      </span>
+      <input type="checkbox" id="siteToggle" class="switch">
+    </label>
+  </section>
+
+  <section>
+    <h2>Recent receipts</h2>
+    <ul id="recent" class="recent"></ul>
+  </section>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

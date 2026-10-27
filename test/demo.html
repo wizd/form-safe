@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Form Safe — test forms</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 760px; margin: 30px auto; padding: 0 16px; color: #1d2330; }
+    section { border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px 20px; margin-bottom: 22px; }
+    label { display: block; margin: 10px 0 4px; font-weight: 600; }
+    input:not([type=radio]):not([type=checkbox]), select, textarea { width: 100%; padding: 6px 8px; box-sizing: border-box; }
+    .opt { font-weight: normal; display: inline-block; margin-right: 14px; }
+    .q { margin: 14px 0; }
+    .q-title { font-weight: 600; }
+    [role=radio] { display: inline-block; border: 1px solid #aaa; border-radius: 14px; padding: 2px 10px; margin-right: 6px; cursor: pointer; }
+    [role=radio][aria-checked=true] { background: #2563eb; color: #fff; }
+    .btn { display: inline-block; margin-top: 12px; background: #2563eb; color: #fff; padding: 7px 16px; border-radius: 6px; cursor: pointer; }
+    #log { white-space: pre-wrap; background: #f6f8fa; padding: 10px; font: 12px monospace; }
+  </style>
+</head>
+<body>
+  <h1>Form Safe test page</h1>
+  <p>Open this page with automatic receipts on and submit the forms, or click the toolbar icon to capture manually.
+    Expected: passwords, card numbers, CVV, one-time codes and hidden fields never appear in a receipt.</p>
+
+  <!-- 1. Classic HTML form -->
+  <section>
+    <h2>Job application</h2>
+    <form id="job" action="#" onsubmit="event.preventDefault(); this.querySelector('.ok').hidden = false;">
+      <label for="fullName">Full name *</label>
+      <input id="fullName" name="full_name" value="Ada Lovelace">
+      <label>Email <input type="email" name="email" value="ada@example.com"></label>
+      <span>Phone number</span>
+      <input type="tel" name="phone" value="+44 20 7946 0000">
+      <label for="country">Country</label>
+      <select id="country" name="country">
+        <option value="">Select…</option><option>Japan</option><option selected>United Kingdom</option>
+      </select>
+      <fieldset>
+        <legend>Do you need visa sponsorship?</legend>
+        <label class="opt"><input type="radio" name="visa" value="yes"> Yes</label>
+        <label class="opt"><input type="radio" name="visa" value="no" checked> No</label>
+      </fieldset>
+      <fieldset>
+        <legend>Skills</legend>
+        <label class="opt"><input type="checkbox" name="skills" checked> JavaScript</label>
+        <label class="opt"><input type="checkbox" name="skills"> Go</label>
+        <label class="opt"><input type="checkbox" name="skills" checked> SQL</label>
+      </fieldset>
+      <label for="cover">Why do you want this job?</label>
+      <textarea id="cover" name="cover">I like analytical engines.
+And second lines.</textarea>
+      <label for="pw">Create a password</label>
+      <input id="pw" type="password" name="password" value="hunter2">
+      <label for="card">Application fee — card</label>
+      <input id="card" name="payment" value="4111 1111 1111 1111">
+      <label for="cvc">CVC</label>
+      <input id="cvc" name="cvc" value="123">
+      <label for="otp">SMS code</label>
+      <input id="otp" autocomplete="one-time-code" value="884211">
+      <input type="hidden" name="csrf_token" value="abc123secret">
+      <label class="opt"><input type="checkbox" name="terms" checked> I agree to the terms</label>
+      <br><button type="submit">Submit application</button>
+      <p class="ok" hidden>✅ Application sent.</p>
+    </form>
+  </section>
+
+  <!-- 2. Div-based SPA form, Google Forms style -->
+  <section id="spa">
+    <h2>Customer support request</h2>
+    <div class="q">
+      <div class="q-title">Order number</div>
+      <div><input class="spa-input" value="ORD-55821"></div>
+    </div>
+    <div class="q">
+      <div class="q-title">What went wrong?</div>
+      <div role="radiogroup" aria-label="What went wrong?">
+        <div role="radio" aria-checked="false" data-value="Late delivery">Late delivery</div>
+        <div role="radio" aria-checked="true" data-value="Damaged item">Damaged item</div>
+        <div role="radio" aria-checked="false" data-value="Other">Other</div>
+      </div>
+    </div>
+    <div class="q">
+      <div class="q-title">Describe the problem</div>
+      <div contenteditable="true" style="border:1px solid #aaa;min-height:40px;padding:6px">The box arrived crushed and the screen is cracked.</div>
+    </div>
+    <div class="btn" role="button" tabindex="0" id="spaSend">Send request</div>
+  </section>
+
+  <!-- 3. Single search box: should be ignored by automatic capture (minFields) -->
+  <section>
+    <h2>Search</h2>
+    <form onsubmit="event.preventDefault()"><input type="search" name="q" value="warranty"><button>Search</button></form>
+  </section>
+
+  <h2>Harness log</h2>
+  <div id="log">(open with ?harness to run the content script without the extension)</div>
+
+  <script>
+    document.querySelectorAll('[role=radio]').forEach(r => r.addEventListener('click', () => {
+      r.parentElement.querySelectorAll('[role=radio]').forEach(o => o.setAttribute('aria-checked', String(o === r)));
+    }));
+
+    // ?harness: stub chrome.runtime and load the real content script, logging its messages.
+    if (location.search.includes('harness')) {
+      window.__messages = [];
+      window.chrome = window.chrome || {};
+      window.chrome.runtime = {
+        sendMessage(msg, cb) {
+          window.__messages.push(msg);
+          document.getElementById('log').textContent = JSON.stringify(window.__messages, null, 2);
+          if (cb) cb({ saved: true, showToast: true, id: 'test' });
+        },
+        onMessage: { addListener() {} },
+        lastError: undefined
+      };
+      const s = document.createElement('script');
+      s.src = '../content/capture.js';
+      document.head.appendChild(s);
+    }
+  </script>
+</body>
+</html>

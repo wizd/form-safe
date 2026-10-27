@@ -1,0 +1,35 @@
+{
+  "manifest_version": 3,
+  "name": "Form Safe — Form Submission Receipts",
+  "short_name": "Form Safe",
+  "version": "0.1.0",
+  "description": "A safe deposit box for every web form. Keeps a private receipt of what you submitted: fields, answers, time and a screenshot.",
+  "minimum_chrome_version": "116",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "Form Safe",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "options_page": "vault/vault.html",
+  "permissions": ["storage", "unlimitedStorage", "activeTab", "scripting"],
+  "optional_host_permissions": ["<all_urls>"],
+  "commands": {
+    "capture-now": {
+      "suggested_key": { "default": "Alt+Shift+S" },
+      "description": "Save a receipt of the forms on this page"
+    }
+  }
+}

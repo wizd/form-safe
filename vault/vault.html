@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Form Safe — Vault</title>
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="vault.css">
+</head>
+<body>
+  <header class="top">
+    <img src="../icons/icon48.png" alt="" width="28" height="28">
+    <h1>Form Safe</h1>
+    <input id="search" type="search" placeholder="Search sites, questions, answers…" autocomplete="off">
+    <nav>
+      <button id="exportJson" class="ghost" title="Back up every receipt as JSON">Export JSON</button>
+      <button id="exportCsv" class="ghost" title="One row per field, for spreadsheets">Export CSV</button>
+      <button id="importBtn" class="ghost">Import</button>
+      <input id="importFile" type="file" accept=".json,application/json" hidden>
+      <a href="#settings" class="ghost button">⚙ Settings</a>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <aside>
+      <div class="list-head"><span id="count">0 receipts</span></div>
+      <ul id="list" class="list"></ul>
+    </aside>
+
+    <main id="main"></main>
+  </div>
+
+  <template id="welcomeTpl">
+    <section class="panel welcome">
+      <h2>🛡️ Every form now has a safe deposit box</h2>
+      <p>Form Safe keeps a private receipt of what you submit: each question, your answer, the time, the page and a screenshot.
+        Job applications, claims, support tickets, registrations, contact forms — find them again in seconds.</p>
+      <ol>
+        <li><strong>Automatic:</strong> turn on automatic receipts and Form Safe saves a copy the moment you press Submit / Send / Apply.</li>
+        <li><strong>Manual:</strong> click the toolbar icon (or press <kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>S</kbd>) to save the forms on the current page.</li>
+        <li><strong>Inbox copy (optional):</strong> send each receipt to your own email or webhook from Settings.</li>
+      </ol>
+      <p class="privacy">Private by design: receipts stay in this Chrome profile. Passwords, card numbers, security codes,
+        one-time codes and hidden fields are never recorded. Nothing is sent anywhere unless you set up delivery yourself.</p>
+      <div class="actions">
+        <button id="welcomeAuto" class="primary">Turn on automatic receipts</button>
+        <a href="#settings" class="button ghost">Settings</a>
+      </div>
+    </section>
+  </template>
+
+  <template id="settingsTpl">
+    <section class="panel settings">
+      <h2>Settings</h2>
+
+      <h3>Capture</h3>
+      <label class="row"><span><strong>Automatic receipts</strong><small>Save a copy when you submit a form on any site. Needs access to all sites; Chrome will ask once.</small></span>
+        <input type="checkbox" id="sAuto" class="switch"></label>
+      <label class="row"><span><strong>Attach a screenshot</strong><small>Visible part of the page at the moment of saving.</small></span>
+        <input type="checkbox" id="sShot" class="switch"></label>
+      <label class="row"><span><strong>Show “saved” notice on the page</strong><small>With View and Undo buttons.</small></span>
+        <input type="checkbox" id="sToast" class="switch"></label>
+      <label class="row"><span><strong>Minimum filled fields</strong><small>Automatic captures with fewer fields are ignored (search boxes, log-ins).</small></span>
+        <input type="number" id="sMin" min="1" max="20" class="num"></label>
+      <label class="row"><span><strong>Keep receipts for</strong><small>Days. 0 keeps them forever. Pinned receipts are never removed.</small></span>
+        <input type="number" id="sRetention" min="0" max="3650" class="num"></label>
+      <label class="col"><strong>Paused sites</strong><small>One hostname per line; subdomains included. No automatic receipts here.</small>
+        <textarea id="sExcluded" rows="6" spellcheck="false"></textarea></label>
+
+      <h3>Send a copy to your inbox</h3>
+      <p class="muted">Form Safe has no server. Delivery goes straight from your browser to the service you configure.</p>
+      <label class="col"><strong>Delivery</strong>
+        <select id="dMode">
+          <option value="none">Off — keep receipts only in this browser</option>
+          <option value="resend">Email via Resend (your API key)</option>
+          <option value="webhook">Webhook (Zapier, Make, n8n, your own server…)</option>
+        </select></label>
+      <div id="resendBox" class="sub">
+        <label class="col"><strong>Resend API key</strong><input id="dKey" type="password" placeholder="re_…" autocomplete="off"></label>
+        <label class="col"><strong>From</strong><small>A sender on a domain verified in Resend, or onboarding@resend.dev for testing.</small><input id="dFrom" placeholder="Form Safe &lt;receipts@yourdomain.com&gt;"></label>
+        <label class="col"><strong>To</strong><input id="dTo" placeholder="you@example.com"></label>
+      </div>
+      <div id="webhookBox" class="sub">
+        <label class="col"><strong>Webhook URL</strong><small>Receives a JSON POST: receipt, markdown and screenshot (data URL).</small><input id="dHook" placeholder="https://hooks.zapier.com/…"></label>
+      </div>
+
+      <div class="actions">
+        <button id="saveSettings" class="primary">Save settings</button>
+        <span id="settingsMsg" class="msg"></span>
+      </div>
+
+      <h3>Danger zone</h3>
+      <button id="deleteAll" class="danger">Delete all receipts</button>
+    </section>
+  </template>
+
+  <script type="module" src="vault.js"></script>
+</body>
+</html>
